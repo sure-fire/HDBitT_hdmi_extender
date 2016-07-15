@@ -1,7 +1,7 @@
 # HDBitT_hdmi_extender
 My notes and tools from reverse engineering the HDbitT HDMI extender
 
-# Acquisition
+### Acquisition
 
 I purchased this thing as a receiver/transmitter pair from [Amazon](https://www.amazon.com/gp/product/B01C9CI1B6/).  It was marketed as ` LKV373A HDMI Extender over Ethernet up to 120m / 390 ft (new ver.)`.  The box itself has no brand, model numbers, or part numbers, only a "V3.0" label.
 
@@ -9,13 +9,13 @@ At the time of purchase, there were no Amazon reviews, but some documentation fr
  - [TimVideos](https://github.com/timvideos/HDMI2USB/wiki/Alternatives#lenkeng-hdmi-over-ip-extender)
  - [Danman's Blog - Reverse Engineering Lenkeng HDMI over IP Extender](https://blog.danman.eu/reverse-engineering-lenkeng-hdmi-over-ip-extender/)
 
-# First boot
+### First boot
 
 When the transmitter boots, it tries to get an IP via DHCP, but falls back to 192.168.1.238.  It also sends out a bit of IGMP/multicast control traffic before it begins transmitting the video stream via UDP multicast to 239.255.42.42:5004.  The packets are consistently 1370 bytes, regardless of whether it has an HDMI signal.
 
 The transmitter responds to pings on 192.168.1.238.
 
-# nmap scan
+### nmap scan
 
 ```
 root@kali:~/hdmi# nmap -T5 192.168.1.238
@@ -34,7 +34,7 @@ PORT     STATE    SERVICE
 Nmap done: 1 IP address (1 host up) scanned in 5.32 seconds
 ```
 
-# HTTP Server
+### HTTP Server
 
 The box has a kludgey web server which allows for upgrading the "firmware" and "encoder firmware".  My transmitter arrived with the following firmware versions:
 
@@ -56,7 +56,7 @@ Looking through the source of the page, there is a CGI script at `/dev/info.cgi`
 - `upgrade` uses an IFRAME (`iframeupload`).  (*TODO*: Look into the upgrade function.  Find a firmware package to inspect.)
 - `softap` and `wifi` suggest that there is another device which has WiFi functionality to connect to a Wifi network or serve as an ad-hoc node.
 
-# Extracting video
+### Extracting video
 
 As a proof of concept, I extracted the UDP datastream with Wireshark and assembled a crappy MP4 stream.  There's some corruption, but it's definitely there.  I'm guessing there is some proprietary header information somewhere in the stream that I'll need to find and clean up.  Here was my method:
 
