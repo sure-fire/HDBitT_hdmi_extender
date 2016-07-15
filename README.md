@@ -114,3 +114,13 @@ This appears to be completely unimplemented.  There is no indication that the de
 This action behaves strangely, and it might be because I've been prone to typos while experimenting with it:
 
 ```GET /dev/info.cgi?action=network&dhcp=on&ipaddr0=192&ipaddr1=168&ipaddr2=1&ipaddr3=2&netmask0=255&netmask1=255&netmask2=255&netmask3=0&gw0=192&gw1=168&gw2=1&gw3=254 HTTP/1.1```
+
+### Hardware Disassembly
+
+I'll take off the heatsinks when I've got some extra thermal paste, but here's the innards of the transmitter:
+
+![](tx_hardware1.jpg)
+
+And the receiver:
+
+![](rx_hardware1.jpg)
