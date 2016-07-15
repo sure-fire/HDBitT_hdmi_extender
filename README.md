@@ -107,6 +107,8 @@ The packet capture also contains GVSP (GigE Vision Streaming Protocol) packets e
 #### `reboot`
 The easiest method would be to use the `t` values in the `reset` and `reboot` parameters to `info.cgi`.  Unfortunately, despite the suggestions of the Javascript in the UI, this functionality doesn't appear to be implemented.  The values I've supplied for `t` are just being ignored, and the reboot is occuring immediately regardless of `t=0`, `t=10`, ... `t=10000`.
 
+Trying to sneak in semicolons and pipes proved unfruitful, including using URI encoding.  The web server is definitely parsing URI encoding as part of a string in the `action` parameter, though.
+
 #### `reset`
 This appears to be completely unimplemented.  There is no indication that the device is responding to the `reset` request.  The HTTP connection is immediately closed.
 
