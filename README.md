@@ -60,14 +60,17 @@ Looking through the source of the page, there is a CGI script at `/dev/info.cgi`
 
 As a proof of concept, I extracted the UDP datastream with Wireshark and assembled a crappy MP4 stream.  There's some corruption, but it's definitely there.  I'm guessing there is some proprietary header information somewhere in the stream that I'll need to find and clean up.  Here was my method:
 
- 1. Use Wireshark to capture the data.  I plugged an Ethernet NIC into a switch that intercepted the traffic between the transmitter and receiver.  Since I used a smart switch, I had to disable it's multicast filtering so I received all of the data.
- 2. After capturing about five seconds of data, I stopped the capture.
- 3. I cleaned the capture by filtering on one of the UDP packets:
+1) Use Wireshark to capture the data.  I plugged an Ethernet NIC into a switch that intercepted the traffic between the transmitter and receiver.  Since I used a smart switch, I had to disable it's multicast filtering so I received all of the data.
+
+2) After capturing about five seconds of data, I stopped the capture.
+
+3) I cleaned the capture by filtering on one of the UDP packets:
 
 ![wireshark](2016-07-14 23_45_27-Wireshark.png)
 
- 4. I exported the raw data (by choosing Show data as: "raw") then saving the result to a file.
- 5. Since I was in the middle of the stream, I used a bash one-liner and `dd` to strip off the bytes of the stream, one at a time, until I arrived at the start of a recognizable MP4 stream.  This turned out to be completely unnecessary, as VLC and mPlayer were happy to deal with a corrupted stream:
+4) I exported the raw data (by choosing Show data as: "raw") then saving the result to a file.
+
+5) Since I was in the middle of the stream, I used a bash one-liner and `dd` to strip off the bytes of the stream, one at a time, until I arrived at the start of a recognizable MP4 stream.  This turned out to be completely unnecessary, as VLC and mPlayer were happy to deal with a corrupted stream:
 
 `for i in {1..2000}; do dd if=live-stream.bin of=live-stream.bin.$i bs=1 skip=$i; done`
 
