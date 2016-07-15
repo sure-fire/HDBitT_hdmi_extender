@@ -79,3 +79,5 @@ mPlayer played the stream with some artifacts, and identified the video stream a
 VLC had considerably more difficulty, but recognized the length of the file and the first few rows of pixels.  VLC provided more info about the strea:m 
 
 ![vlc](2016-07-14 23_51_41-VLC info.png)
+
+As an aside, the video stream contains the strings `Private Network` and `AIR_CH_521_6M`.
