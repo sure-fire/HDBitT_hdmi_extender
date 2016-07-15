@@ -165,15 +165,9 @@ Extracting  2BDFC0     Data Error
 Sub items Errors: 1
 ```
 
-Binwalk is labeling the files as 7zip files, which is why I've tried 7z decompression, but LZMA 
+Binwalk is labeling the files as 7zip files, which is why I've tried 7z decompression, but many file formats use LZMA compression, so it's unclear whether binwalk is accurate in labelling these as 7zip files.
 
-I've also tried stripping the last few 40-or-so bytes from the file, in the hopes that there was just some lingering trailer that was confusing 7zip...
-
-```
-root@kali:~/hdmi/FIRMWARE/_LKV373A_RX_20151105_PKG.PKG.extracted# for i in {251946..251900}; do dd if=2BDFC0.7z of=2BDFC0.$i.7z bs=1 count=$i; done
-```
-
-... to no avail.  That was when I realized that there is binary data at the beginning of the file, but uncompressed strings at the end of the file:
+I've also tried stripping bytes from the end of each file when I realized that there is binary data at the beginning of the file, but uncompressed strings at the end of the file:
 
 ```
 root@kali:~/hdmi/FIRMWARE/_LKV373A_RX_V3.0_20151130_PKG.PKG.extracted# strings 2BDFCE.7z | tail
@@ -204,11 +198,11 @@ Let's try using lzma instead of 7z.  We'll need to redirect STDERR to STDOUT, th
 for i in `ls 2BDFCE.*.7z`; do lzma -t $i 2>&1 | grep -v "Compressed data is corrupt"; done
 ```
 
-A few sites suggest magic bytes in the footers of LZMA-compressed file formats, but I'm not seeing any of them:
+I've started looking through the files for footers, which would either confirm a file format, or tell me if/how multiple file formats are concatenated.  A few sites suggest magic bytes in the footers of LZMA-compressed file formats:
  - 'YZ' ends a .xz file, according to [the LZMA Utils author at tukaanu.org](tukaani.org/xz/xz-file-format.txt)
  - '0x0A I P 0x0A' ends a .7z file, according to [the same LZMA Utils author, but on the 7zip forums on sourceforce.net](https://sourceforge.net/p/sevenzip/discussion/45797/thread/37cfd783/)
 
-None of these bytes were found looking the directory of danman's firmware packages:
+No 7zip footers were found looking the directory of danman's firmware packages:
 
 ```
 root@kali:~/hdmi/FIRMWARE# binwalk -e * | egrep "Target|LZMA"
@@ -242,3 +236,34 @@ Target File:   LKV373A_V3.0_FW.rar
 Target File:   LKV373A_V3.0_网页升级操作说明.pdf
 ```
 
+```
+for i in `find . -iname *.7z`; do echo $i; xxd $i | grep "0a49 50d2"; done
+```
+
+However, I did find some "YZ" footers, which might indicate an .xz file.  Here's a minimized list:
+
+```
+./_LKV373A_TX_V3.0_20151130_bin.bin.extracted/525.7z
+  0251410: 43f7 073a 595a 132f e0df 7b33 dbb3 177a  C..:YZ./..{3...z
+
+./_LKV373A_TX_20151028_bin.bin.extracted/525.7z
+  0204940: c604 16cf 12ec 595a 8f42 8377 8012 efc6  ......YZ.B.w....
+  020ae40: 595a 8f43 0614 67c2 8e17 cfb2 d806 5586  YZ.C..g.......U.
+  022de60: a02c 1e5b e307 26d0 bc3e 9813 077a 595a  .,.[..&..>...zYZ
+
+./_LKV373A_TX_V3.0b_20160218.bin.extracted/525.7z
+  0213060: 83cf 9759 5afe 40ab e719 9b97 ecae 40fe  ...YZ.@.......@.
+  02191d0: 2610 5846 595a 664a 3d1e 00c1 5700 9c7e  &.XFYZfJ=...W..~
+  0258a10: a170 f759 5a07 460e 4b08 470d d857 f18a  .p.YZ.F.K.G..W..
+
+./_LKV373A_TX_V3.0b_20160218.bin.extracted/CBA89.7z
+  014dc70: 595a 664a 3d1e 00c1 5700 9c7e 3c7e 0465  YZfJ=...W..~<~.e
+
+./_LKV373A_RX_V3.0b_20160218.PKG.extracted/280B4A.7z
+  002ede0: aeff 1697 eb59 5aca c212 969d 1a3e f82d  .....YZ......>.-
+  004ec90: 4435 8aa8 2dc7 be59 5ab7 ddf0 02fe 140d  D5..-..YZ.......
+
+./_LKV373A_RX_V3.0b_20160218.PKG.extracted/2811BC.7z
+  002e770: 1697 eb59 5aca c212 969d 1a3e f82d 3403  ...YZ......>.-4.
+  004e620: 8aa8 2dc7 be59 5ab7 ddf0 02fe 140d 8e7d  ..-..YZ........}
+```
