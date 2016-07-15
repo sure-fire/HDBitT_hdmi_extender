@@ -43,6 +43,8 @@ Version : 3.0.0.0.20151028
 Encoder Version : 7.1.2.0.9.20151028
 ```
 
+![webui](2016-07-14 22_26_27-webui.png)
+
 The upgrades appear to be packaged with pre-specified file extensions.  Firmware is a .PKG file; Encoder firmware is a .BIN file.
 
 Looking through the source of the page, there is a CGI script at `/dev/info.cgi` which does all the heavy lifting.  It is controlled through a GET variable (`action`) which, at a minimum, can be set to `macaddr`, `upgrade`, `reboot`, `Reset`, `network`, `softap`, and `wifi`:
@@ -53,3 +55,24 @@ Looking through the source of the page, there is a CGI script at `/dev/info.cgi`
 - `network` takes two GET parameters: `ipaddr0` and `netmask0`, which are validated client-side.  There is likely command injection here, assuming use of `ifconfig` as in `macaddr` above.
 - `upgrade` uses an IFRAME (`iframeupload`).  (*TODO*: Look into the upgrade function.  Find a firmware package to inspect.)
 - `softap` and `wifi` suggest that there is another device which has WiFi functionality to connect to a Wifi network or serve as an ad-hoc node.
+
+# Extracting video
+
+As a proof of concept, I extracted the UDP datastream with Wireshark and assembled a crappy MP4 stream.  There's some corruption, but it's definitely there.  I'm guessing there is some proprietary header information somewhere in the stream that I'll need to find and clean up.  Here was my method:
+
+ 1. Use Wireshark to capture the data.  I plugged an Ethernet NIC into a switch that intercepted the traffic between the transmitter and receiver.  Since I used a smart switch, I had to disable it's multicast filtering so I received all of the data.
+ 2. After capturing about five seconds of data, I stopped the capture.
+ 3. I cleaned the capture by filtering on one of the UDP packets:
+
+![wireshark](2016-07-14 23_45_27-Wireshark.png)
+
+ 4. I exported the raw data (by choosing Show data as: "raw") then saving the result to a file.
+ 5. Since I was in the middle of the stream, I used a bash one-liner and `dd` to strip off the bytes of the stream, one at a time, until I arrived at the start of a recognizable MP4 stream.  This turned out to be completely unnecessary, as VLC and mPlayer were happy to deal with a corrupted stream:
+
+`for i in {1..2000}; do dd if=live-stream.bin of=live-stream.bin.$i bs=1 skip=$i; done`
+
+mPlayer played the stream with some artifacts, and identified the video stream as: `Video: MPEG4 Video (H264) 1728x1080 30fps [V: h264 constrained baseline L4.0, yuv420p, 1728x1080]`
+
+VLC had considerably more difficulty, but recognized the length of the file and the first few rows of pixels.  VLC provided more info about the strea:m 
+
+![vlc](2016-07-14 23_51_41-VLC info.png)
