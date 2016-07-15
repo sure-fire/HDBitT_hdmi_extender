@@ -1,6 +1,13 @@
 # HDBitT_hdmi_extender
 My notes and tools from reverse engineering the HDbitT HDMI extender
 
+### Todo
+
+ - [ ] Attempt command injection using info.cgi script
+ - [ ] Setup a DHCP server to respond to the receiver's DISCOVER request, then do a portscan on it
+ - [ ] Do a full nmap (ports 1-65535)
+ - [ ] Search for a firmware update for the transmitter
+
 ### Acquisition
 
 I purchased this thing as a receiver/transmitter pair from [Amazon](https://www.amazon.com/gp/product/B01C9CI1B6/).  It was marketed as ` LKV373A HDMI Extender over Ethernet up to 120m / 390 ft (new ver.)`.  The box itself has no brand, model numbers, or part numbers, only a "V3.0" label.
@@ -38,7 +45,9 @@ Nmap done: 1 IP address (1 host up) scanned in 5.32 seconds
 
 ### HTTP Server
 
-The box has a kludgey web server which allows for upgrading the "firmware" and "encoder firmware".  My transmitter arrived with the following firmware versions:
+The box has a kludgey web server which allows for upgrading the "firmware" and "encoder firmware".  The HTTP header does not include any identifying information, so they may have rolled their own server.
+
+The purpose of the web server appears to primarly be to allow the customer to upgrade the firmware, although there is more functionality in the code that wasn't visible on the front page.  My transmitter arrived with the following firmware versions:
 
 ```
 Version : 3.0.0.0.20151028
@@ -49,7 +58,7 @@ Encoder Version : 7.1.2.0.9.20151028
 
 The upgrades appear to be packaged with pre-specified file extensions.  Firmware is a .PKG file; Encoder firmware is a .BIN file.
 
-Looking through the source of the page, there is a CGI script at `/dev/info.cgi` which does all the heavy lifting.  It is controlled through a GET variable (`action`) which, at a minimum, can be set to `macaddr`, `upgrade`, `reboot`, `Reset`, `network`, `softap`, and `wifi`:
+Looking through the source of the page, there is a CGI script at `/dev/info.cgi` which does all the heavy lifting.  It is controlled through a GET variable (`action`) which, at a minimum, supports `macaddr`, `upgrade`, `reboot`, `Reset`, `network`, `softap`, and `wifi`:
 
 - `macaddr` allows the end user to change the MAC address of the device.  Validation takes place client-side, and there is likely a command injection here if the device is using `ifconfig`
 - `reset` reverts the device to factory defaults.  A time GET parameter (`t`) is given, and a command injection may be possible, provided that `time` is fed to a sleep command.
