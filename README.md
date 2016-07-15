@@ -17,6 +17,7 @@ The transmitter responds to pings on 192.168.1.238.
 
 # nmap scan
 
+```
 root@kali:~/hdmi# nmap -T5 192.168.1.238
 
 Starting Nmap 6.49BETA4 ( https://nmap.org ) at 2016-07-14 21:52 CDT
@@ -31,6 +32,7 @@ PORT     STATE    SERVICE
 7002/tcp open     afs3-prserver
 
 Nmap done: 1 IP address (1 host up) scanned in 5.32 seconds
+```
 
 # HTTP Server
 
@@ -45,9 +47,9 @@ The upgrades appear to be packaged with pre-specified file extensions.  Firmware
 
 Looking through the source of the page, there is a CGI script at `/dev/info.cgi` which does all the heavy lifting.  It is controlled through a GET variable (`action`) which, at a minimum, can be set to `macaddr`, `upgrade`, `reboot`, `Reset`, `network`, `softap`, and `wifi`:
 
-- macaddr allows the end user to change the MAC address of the device.  Validation takes place client-side, and there is likely a command injection here if the device is using `ifconfig`
-- reset reverts the device to factory defaults.  A time GET parameter (`t`) is given, and a command injection may be possible, provided that `time` is fed to a sleep command.
-- reboot presumably calls reboot, and also includes a time GET parameter (`t`) which may provide a command injection.  The reboot would try to occur first, which would cause issues with the command injection.
-- network takes two GET parameters: `ipaddr0` and `netmask0`, which are validated client-side.  There is likely command injection here, assuming use of `ifconfig` as in `macaddr` above.
-- upgrade uses an IFRAME (`iframeupload`).  *TODO*: Look into the upgrade function.  Find a firmware package to inspect.
-- softap and wifi suggest that there is another device which has WiFi functionality to connect to a Wifi network or serve as an ad-hoc node.
+- `macaddr` allows the end user to change the MAC address of the device.  Validation takes place client-side, and there is likely a command injection here if the device is using `ifconfig`
+- `reset` reverts the device to factory defaults.  A time GET parameter (`t`) is given, and a command injection may be possible, provided that `time` is fed to a sleep command.
+- `reboot` presumably calls reboot, and also includes a time GET parameter (`t`) which may provide a command injection.  The reboot would try to occur first, which would cause issues with the command injection.
+- `network` takes two GET parameters: `ipaddr0` and `netmask0`, which are validated client-side.  There is likely command injection here, assuming use of `ifconfig` as in `macaddr` above.
+- `upgrade` uses an IFRAME (`iframeupload`).  (*TODO*: Look into the upgrade function.  Find a firmware package to inspect.)
+- `softap` and `wifi` suggest that there is another device which has WiFi functionality to connect to a Wifi network or serve as an ad-hoc node.
