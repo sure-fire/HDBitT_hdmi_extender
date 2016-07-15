@@ -4,10 +4,10 @@ My notes from reverse engineering the HDbitT HDMI extender.  Be warned: this is 
 
 ### Todo
 
- - [ ] Attempt command injection using info.cgi script
+ - [x] Attempt command injection using info.cgi script
  - [ ] Setup a DHCP server to respond to the receiver's DISCOVER request, then do a portscan on it
  - [ ] Do a full nmap (ports 1-65535)
- - [ ] Search for a firmware update for the transmitter
+ - [x] Search for a firmware update for the transmitter
 
 ### Acquisition
 
