@@ -18,9 +18,16 @@ At the time of purchase, there were no Amazon reviews, but some documentation fr
 
 ### First boot
 
-When the transmitter boots, it tries to get an IP via DHCP, but falls back to 192.168.1.238.  It also sends out a bit of IGMP/multicast control traffic before it begins transmitting the video stream via UDP multicast to 239.255.42.42:5004.  The packets are consistently 1370 bytes, regardless of whether it has an HDMI signal.
+When the transmitter boots, it tries to get an IP via DHCP, but falls back to 192.168.1.238.  A few gratuitous ARP requests give away the transmitter's IP address.
 
-The transmitter responds to pings on 192.168.1.238.
+The second stage is to join three mutlicast groups:
+ - `239.255.42.42` is used to transmit the video signal to the receivers
+ - `228.67.43.91` is used to transmit a host identifier.  In my case, the host an 11-byte string: "hostIdTest"
+ - `224.0.0.1` is not used, and is likely left over from example multicast code.
+
+The third stage is to begin transmitting the video stream via UDP multicast to 239.255.42.42:5004.  Note that the packets are sent regardless of whether there is a receiver.  The packets are consistently 1370 bytes, regardless of whether the transmitter has an HDMI input signal.
+
+Out of the box, the transmitter responds to pings and web requests on 192.168.1.238.
 
 A packet capture spanning from the first boot of the transmitter and including about 5 seconds of video, is available [here](2016-07-15 00_16_11 - first_boot.pcapng)
 
@@ -36,9 +43,9 @@ Host is up (1.0s latency).
 Not shown: 996 closed ports
 PORT     STATE    SERVICE
 80/tcp   open     http
-514/tcp  filtered shell
-7000/tcp open     afs3-fileserver
-7002/tcp open     afs3-prserver
+514/tcp  filtered shell                 * (USUALLY SYSLOG) *
+7000/tcp open     afs3-fileserver       * (???) *
+7002/tcp open     afs3-prserver         * (???) *
 
 Nmap done: 1 IP address (1 host up) scanned in 5.32 seconds
 ```
@@ -94,3 +101,16 @@ VLC had considerably more difficulty, but recognized the length of the file and 
 As an aside, the video stream contains the strings `Private Network` and `AIR_CH_521_6M`.
 
 The packet capture also contains GVSP (GigE Vision Streaming Protocol) packets every two seconds on UDP/6000.  The Wireshark dissector for GVSP is incomplete (or this is a non-standard implementation).  Unfortunately, the documentation I've found so far is very non-technical.
+
+### Command Injection
+
+#### `reboot`
+The easiest method would be to use the `t` values in the `reset` and `reboot` parameters to `info.cgi`.  Unfortunately, despite the suggestions of the Javascript in the UI, this functionality doesn't appear to be implemented.  The values I've supplied for `t` are just being ignored, and the reboot is occuring immediately regardless of `t=0`, `t=10`, ... `t=10000`.
+
+#### `reset`
+This appears to be completely unimplemented.  There is no indication that the device is responding to the `reset` request.  The HTTP connection is immediately closed.
+
+#### `network`
+This action behaves strangely, and it might be because I've been prone to typos while experimenting with it:
+
+```GET /dev/info.cgi?action=network&dhcp=on&ipaddr0=192&ipaddr1=168&ipaddr2=1&ipaddr3=2&netmask0=255&netmask1=255&netmask2=255&netmask3=0&gw0=192&gw1=168&gw2=1&gw3=254 HTTP/1.1```
