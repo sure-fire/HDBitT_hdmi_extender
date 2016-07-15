@@ -15,6 +15,8 @@ When the transmitter boots, it tries to get an IP via DHCP, but falls back to 19
 
 The transmitter responds to pings on 192.168.1.238.
 
+A packet capture spanning from the first boot of the transmitter and including about 5 seconds of video, is available [here](2016-07-15 00_16_11 - first_boot.pcapng)
+
 ### nmap scan
 
 ```
@@ -81,3 +83,5 @@ VLC had considerably more difficulty, but recognized the length of the file and 
 ![vlc](2016-07-14 23_51_41-VLC info.png)
 
 As an aside, the video stream contains the strings `Private Network` and `AIR_CH_521_6M`.
+
+The packet capture also contains GVSP (GigE Vision Streaming Protocol) packets every two seconds on UDP/6000.  The Wireshark dissector for GVSP is incomplete (or this is a non-standard implementation).  Unfortunately, the documentation I've found so far is very non-technical.
