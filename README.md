@@ -132,7 +132,7 @@ And the receiver:
 
 ### Firmware Analysis
 
-Still following in the footsteps of damnan, I've started to analyze some of the firmwares he acquired from a vendor.  He's hosted them on his Google Drive, and I've copied them locally here.  Binwalk is able to find the web server files without issue, but it also uncovers LZMA-compressed data in many places, none of which is uncompressing nicely:
+Still following in the footsteps of danman, I've started to analyze some of the firmwares he acquired from a vendor.  He's hosted them on his Google Drive, and I've copied them locally here.  Binwalk is able to find the web server files without issue, but it also uncovers LZMA-compressed data in many places, none of which is uncompressing nicely:
 
 ```
 root@kali:~/hdmi/FIRMWARE# binwalk -e LKV373A_RX_20151105_PKG.PKG
