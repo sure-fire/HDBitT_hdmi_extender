@@ -32,7 +32,7 @@ The third stage is to begin transmitting the video stream via UDP multicast to 2
 
 Out of the box, the transmitter responds to pings and web requests on 192.168.1.238.
 
-A packet capture spanning from the first boot of the transmitter and including about 5 seconds of video, is available [here](2016-07-15 00_16_11 - first_boot.pcapng)
+A packet capture spanning from the first boot of the transmitter and including about 5 seconds of video, is available [here](https://github.com/sure-fire/HDBitT_hdmi_extender/raw/master/2016-07-15%2000_16_11%20-%20first_boot.pcapng)
 
 ### nmap scan
 
@@ -64,7 +64,7 @@ Version : 3.0.0.0.20151028
 Encoder Version : 7.1.2.0.9.20151028
 ```
 
-![webui](2016-07-14 22_26_27-webui.png)
+![webui](https://github.com/sure-fire/HDBitT_hdmi_extender/raw/master/2016-07-14%2022_26_27-webui.png)
 
 The upgrades appear to be packaged with pre-specified file extensions.  Firmware is a .PKG file; Encoder firmware is a .BIN file.
 
@@ -87,7 +87,7 @@ As a proof of concept, I extracted the UDP datastream with Wireshark and assembl
 
 3) I cleaned the capture by filtering on one of the UDP packets:
 
-![wireshark](2016-07-14 23_45_27-Wireshark.png)
+![wireshark](https://github.com/sure-fire/HDBitT_hdmi_extender/raw/master/2016-07-14%2023_45_27-Wireshark.png)
 
 4) I exported the raw data (by choosing Show data as: "raw") then saving the result to a file.
 
@@ -99,7 +99,7 @@ mPlayer played the stream with some artifacts, and identified the video stream a
 
 VLC had considerably more difficulty, but recognized the length of the file and the first few rows of pixels.  VLC provided more info about the strea:m 
 
-![vlc](2016-07-14 23_51_41-VLC info.png)
+![vlc](https://github.com/sure-fire/HDBitT_hdmi_extender/raw/master/2016-07-14%2023_51_41-VLC%20info.png)
 
 As an aside, the video stream contains the strings `Private Network` and `AIR_CH_521_6M`.
 
